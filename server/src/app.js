@@ -5,18 +5,28 @@ const morgan = require('morgan');
 
 const app = express();
 
+/* Custom Routes */
+const userRoute = require('../src/routes/users');
+const authRoute = require('../src/routes/auth');
+
+/* Constant Variables */
 const PORT = process.env.PORT || 5000;
+const dev = true;
+const morganLogOption = dev ? "dev" : "common";
 
 /* Connecting with mongodb atlas cluster */
 require('../src/db/mongooseConnection');
 
 /* Middlewares */
 app.use(express.json());        // For parsing the body of any POST requests
-app.use(helmet());
-app.use(morgan("common"));
+app.use(helmet());              // For securing our application to some extent
+app.use(morgan(morganLogOption));      // For loggig all HTTP requests
 
 app.get('/', (req, res) => {
-  res.send('Feedbook app is working');
+  res.send('Home Page Working');
 });
+
+app.use('/api/auth', authRoute);
+app.use('/api/users', userRoute);
 
 app.listen(PORT, console.log(`Server is running at http://localhost:${PORT}`));
