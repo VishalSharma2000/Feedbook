@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const MONGO_URL = process.env.MONGO_URL;
+console.log(MONGO_URL);
 
 // Handle the initial connection error
 const makeConnection = async () => {
@@ -8,6 +9,7 @@ const makeConnection = async () => {
     await mongoose.connect(MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
     }, console.log('Successfully Connected with Mongodb database'))
   } catch (error) {
     handleConnectionError(error);
@@ -28,6 +30,7 @@ mongoose.connection.on('error', (error) => {
 const handleConnectionError = (error) => {
   console.log('Fail in connection with mongodb' + error);
 
+  /* In every 5 second, it will try to reconnect */
   setTimeout(() => {
     console.log('Will try to make connection again after 5 seconsds')
   }, 5000);
