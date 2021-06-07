@@ -1,8 +1,8 @@
-const route = require('express').Router();
+const router = require('express').Router();
 
 const User = require('./../db/models/User');
 
-const successJSON = (data = null) => {
+const successJSON = (data = undefined) => {
   return {
     error: false,
     errorMessage: '',
@@ -11,15 +11,17 @@ const successJSON = (data = null) => {
 };
 
 const failureJSON = (errorMessage) => {
+  if (errorMessage = {} || errorMessage === undefined || errorMessage === null)
+    errorMessage = "Some Error. Please Try Again!"
   return {
     error: true,
-    errorMessage: errorMessage || 'Some Error. Please Try Again!',
+    errorMessage: errorMessage,
     data: null,
   }
 }
 
 /* Sign Up New User */
-route.post('/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
   const { username, name, email, password } = req.body;
 
   const newUser = new User({
@@ -31,11 +33,11 @@ route.post('/signup', async (req, res) => {
 
   try {
     await newUser.save();
-    return res.status(200).json(newUser);
+    return res.status(201).json(successJSON(newUser));
   } catch (error) {
     console.log(error);
-    return res.status(400).json({ error });
+    return res.status(500).json(failureJSON(error));
   }
 });
 
-module.exports = route;
+module.exports = router;

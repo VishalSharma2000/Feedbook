@@ -59,11 +59,28 @@ const UserSchema = new mongoose.Schema({
   lastLoginIn: {
     type: Date,
   },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  }
 }, {
   timestamps: true,
 });
 
 /* Middleware functions on schema */
+/* When we want to use the data of the instance then we should define the method as methods but when we want to search in the collection and it has not relation with the instance then we can define static method */
+
+/* Methods */
+UserSchema.methods.toJSON = function () {
+  /* Converting from User instance to normal object */
+  const user = this.toObject();
+
+  /* Deleting sensitive data of the user */
+  delete user.password;
+  delete user.lastLoginIn;
+
+  return user;
+};
 
 /* Performing operations before save */
 UserSchema.pre('save', async function (next) {
