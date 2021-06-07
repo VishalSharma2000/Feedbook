@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+
+let { SALT_ROUND } = process.env;
+SALT_ROUND = parseInt(SALT_ROUND);
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -57,6 +61,17 @@ const UserSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+});
+
+/* Middleware functions on schema */
+
+/* Performing operations before save */
+UserSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, SALT_ROUND);
+  }
+
+  next();
 });
 
 module.exports = mongoose.model('User', UserSchema);

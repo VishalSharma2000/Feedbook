@@ -33,6 +33,7 @@ route.post('/signup', async (req, res) => {
     await newUser.save();
     return res.status(200).json(newUser);
   } catch (error) {
+    console.log(error);
     return res.status(400).json({ error });
   }
 });
