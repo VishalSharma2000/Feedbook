@@ -62,6 +62,11 @@ const UserSchema = new mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
+  },
+  // TODO: Change the default value of emailActivated to false, after adding email verification in signup route
+  emailActivated: {
+    type: Boolean,
+    default: true,
   }
 }, {
   timestamps: true,
@@ -78,6 +83,26 @@ UserSchema.methods.toJSON = function () {
   /* Deleting sensitive data of the user */
   delete user.password;
   delete user.lastLoginIn;
+
+  return user;
+};
+
+/* Statics */
+UserSchema.statics.findByCredentials = async function (email, password) {
+  const User = this;
+
+  let user = undefined;
+  try {
+    user = await User.findOne({ email });
+  } catch (error) {
+    console.log('Error while fetching user ' + error);
+    throw new Error('Some server error' + error);
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw Error('Authentication Failed');
+  }
 
   return user;
 };

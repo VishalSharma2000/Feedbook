@@ -40,4 +40,19 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+/* Login for Existing User */
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  let user = undefined;
+  try {
+    user = await User.findByCredentials(email, password);
+  } catch (error) {
+    console.log('Error while authentication user', error.toString());
+    return res.status(500).send();
+  }
+
+  res.send(user);
+});
+
 module.exports = router;

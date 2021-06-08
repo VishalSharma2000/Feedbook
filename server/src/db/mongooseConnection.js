@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const MONGO_URL = process.env.MONGO_URL;
-console.log(MONGO_URL);
 
 // Handle the initial connection error
 const makeConnection = async () => {
