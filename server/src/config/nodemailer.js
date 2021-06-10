@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-const sendMail = async (to, subject, body) => {
+const sendMail = async ({ to, subject, body }) => {
   let info;
   try {
     info = await transporter.sendMail({
@@ -20,13 +20,11 @@ const sendMail = async (to, subject, body) => {
       html: body,
     });
 
-    console.log('Mail Sent to User successfully');
+    console.log('Mail successfully sent to ' + to);
   } catch (error) {
     console.log('Error while sending email ' + error);
     throw new Error(error);
   }
 };
-
-sendMail('3838e98cce-ae10dd@inbox.mailtrap.io', 'Welcome', '<h1>Welcome</h1>');
 
 module.exports = sendMail;

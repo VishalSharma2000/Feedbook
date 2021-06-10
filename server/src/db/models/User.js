@@ -63,10 +63,9 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  // TODO: Change the default value of emailActivated to false, after adding email verification in signup route
-  emailActivated: {
+  emailVerified: {
     type: Boolean,
-    default: true,
+    default: false,
   }
 }, {
   timestamps: true,
