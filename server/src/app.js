@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 
 const app = express();
 
@@ -16,6 +17,9 @@ const morganLogOption = dev ? "dev" : "common";
 
 /* Connecting with mongodb atlas cluster */
 require('../src/db/mongooseConnection');
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 /* Middlewares */
 app.use(express.json());        // For parsing the body of any POST requests
