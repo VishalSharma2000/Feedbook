@@ -19,6 +19,11 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Name is required'],
     trim: true,
   },
+  bio: {
+    type: String,
+    default: "",
+    maxLength: 50,
+  },
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -33,6 +38,11 @@ const UserSchema = new mongoose.Schema({
         if (pass.length < 9) throw new Error(`Password Length should be more than 8, found ${pass.length}`);
       }
     }
+  },
+  address: {
+    addLine1: String,
+    city: String,
+    country: String,
   },
   profilePicture: {
     type: String,
@@ -118,5 +128,16 @@ UserSchema.pre('save', async function (next) {
 
   next();
 });
+
+// UserSchema.post('remove', async function (next) {
+//   const followers = this.followers;
+
+//   let followingUsers = [];
+//   try {
+//     followingUsers = await User.find({ following: this._id });
+//   } catch (error) {
+
+//   }
+// })
 
 module.exports = mongoose.model('User', UserSchema);
