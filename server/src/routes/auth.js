@@ -14,7 +14,7 @@ const successJSON = (data = undefined) => {
 };
 
 const failureJSON = (errorMessage) => {
-  if (errorMessage = {} || errorMessage === undefined || errorMessage === null)
+  if (errorMessage === {} || errorMessage === undefined || errorMessage === null)
     errorMessage = "Some Error. Please Try Again!"
   return {
     error: true,
@@ -67,16 +67,16 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  let user = undefined;
+  const user = undefined;
   try {
     user = await User.findByCredentials(email, password);
   } catch (error) {
-    console.log('Error while authentication user', error.toString());
-    return res.status(500).send();
+    // TODO: Check for more error handling mechanism
+    return res.status(500).json(failureJSON(error.message));
   }
 
   if (user.emailActivated) {
-    return res.json('Your Email is not Activated');
+    return res.status(200).json(failureJSON('Your Email is not Activated'));
   }
 
   res.send(user);

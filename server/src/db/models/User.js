@@ -95,12 +95,16 @@ UserSchema.statics.findByCredentials = async function (email, password) {
     user = await User.findOne({ email });
   } catch (error) {
     console.log('Error while fetching user ' + error);
-    throw new Error('Some server error' + error);
+    throw new Error({ status: 500, msg: 'Some server error' + error });
+  }
+
+  if (!user) {
+    throw new Error({ status: 404, msg: 'User does not exist' });
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw Error('Authentication Failed');
+    throw new Error({ status: 401, msg: 'Authentication Failed' });
   }
 
   return user;
