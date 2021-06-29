@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const User = require('../db/models/User');
+const { isUserExist } = require('./../utils/helperFunctions');
 
 const successJSON = (data = undefined) => {
   return {
@@ -25,6 +26,7 @@ const failureJSON = (errorMessage) => {
 router.get('/', async (req, res) => {
   const { userId } = req.query;
 
+  /* If User does not exist */
   if (!userId) {
     return res.status(400).json(failureJSON('User Id is required'));
   }
@@ -49,6 +51,7 @@ router.patch('/update', async (req, res) => {
     return allowedUpdates.indexOf(key) === -1;
   });
 
+  /* If there is any invalid update key-value pair then return */
   if (inValidUpdates.length > 0) {
     console.log('Invalid updates');
     return res.status(401).json(failureJSON({
@@ -64,6 +67,7 @@ router.patch('/update', async (req, res) => {
       return res.status(401).json(failureJSON('User does not exist'));
     }
 
+    /* Update all the allowed updates in the user document */
     allowedUpdates.forEach(updateKey => {
       user[updateKey] = newUserDetails[updateKey];
     });
@@ -93,12 +97,60 @@ router.delete('/delete', async (req, res) => {
 
 /* Follow user */
 router.post('/follow', async (req, res) => {
+  const { userId, userToFollow } = req.body;
 
+  /* Check if User Exist */
+  const [currUserDetails] = await isUserExist(userId);
+  const [toFollowUserDetails] = await isUserExist(userToFollow);
+
+  if (!currUserDetails || !toFollowUserDetails) {
+    return res.status(401).json(failureJSON('User does not exist'));
+  }
+
+  /* If userToFollow is already following the user */
+  if (currUserDetails.following.includes(toFollowUserDetails._id)) {
+    return res.status(400).json(failureJSON('Already following the user'));
+  }
+
+  currUserDetails.following.push(toFollowUserDetails);
+  toFollowUserDetails.followers.push(currUserDetails);
+
+  try {
+    await currUserDetails.save();
+  } catch (error) {
+    return res.status(501).json(failureJSON(error));
+  }
+
+  res.json(currUserDetails);
 });
 
 /* UnFollow user */
 router.post('/unfollow', async (req, res) => {
+  const { userId, userToUnFollow } = req.body;
 
+  /* Check if User Exist */
+  const [currUserDetails] = await isUserExist(userId);
+  const [toUnFollowUserDetails] = await isUserExist(userToUnFollow);
+
+  if (!currUserDetails || !toUnFollowUserDetails) {
+    return res.status(401).json(failureJSON('User does not exist'));
+  }
+
+  /* If userToFollow is already following the user */
+  if (!currUserDetails.following.includes(toUnFollowUserDetails._id)) {
+    return res.status(400).json(failureJSON('You have already unfollowed the user'));
+  }
+
+  currUserDetails.following.pop(toUnFollowUserDetails);
+  toUnFollowUserDetails.followers.pop(currUserDetails);
+
+  try {
+    await currUserDetails.save();
+  } catch (error) {
+    return res.status(501).json(failureJSON(error));
+  }
+
+  res.json(currUserDetails);
 });
 
 module.exports = router;
