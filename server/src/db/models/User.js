@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-let { SALT_ROUND } = process.env;
+let { SALT_ROUND, JWT_VERIFY_KEY } = process.env;
 SALT_ROUND = parseInt(SALT_ROUND);
 
 const UserSchema = new mongoose.Schema({
@@ -76,7 +77,11 @@ const UserSchema = new mongoose.Schema({
   emailVerified: {
     type: Boolean,
     default: false,
-  }
+  },
+  tokens: [{
+    type: String,
+    required: true,
+  }]
 }, {
   timestamps: true,
 });
@@ -109,11 +114,13 @@ UserSchema.statics.findByCredentials = async function (email, password) {
   }
 
   if (!user) {
+    console.log('User not found');
     throw new Error({ status: 404, msg: 'User does not exist' });
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
+    console.log('authentication failed');
     throw new Error({ status: 401, msg: 'Authentication Failed' });
   }
 
@@ -128,6 +135,20 @@ UserSchema.pre('save', async function (next) {
 
   next();
 });
+
+UserSchema.methods.generateAuthToken = async function () {
+  let user = this;
+
+  /* Create new token for new login */
+  const token = jwt.sign({ _id: user._id.toString() }, JWT_VERIFY_KEY, { expiresIn: 100000 });
+  console.log(token);
+
+  /* Concatinating newly created token with the old token array */
+  user.tokens.push(token);
+
+  await user.save();
+  return token;
+};
 
 // UserSchema.post('remove', async function (next) {
 //   const followers = this.followers;

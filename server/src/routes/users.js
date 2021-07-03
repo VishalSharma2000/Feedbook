@@ -3,6 +3,7 @@ const router = express.Router();
 
 const User = require('../db/models/User');
 const { isUserExist } = require('./../utils/helperFunctions');
+const { authenticationUserToken: verifyUser } = require('../middleware/auth');
 
 const successJSON = (data = undefined) => {
   return {
@@ -23,9 +24,10 @@ const failureJSON = (errorMessage) => {
 }
 
 /* Get User Details */
-router.get('/', async (req, res) => {
+router.get('/', verifyUser, async (req, res) => {
   const { userId } = req.query;
 
+  console.log(req.user);
   /* If User does not exist */
   if (!userId) {
     return res.status(400).json(failureJSON('User Id is required'));
@@ -117,6 +119,7 @@ router.post('/follow', async (req, res) => {
 
   try {
     await currUserDetails.save();
+    await toFollowUserDetails.save();
   } catch (error) {
     return res.status(501).json(failureJSON(error));
   }
@@ -141,7 +144,7 @@ router.post('/unfollow', async (req, res) => {
     return res.status(400).json(failureJSON('You have already unfollowed the user'));
   }
 
-  currUserDetails.following.pop(toUnFollowUserDetails);
+  currUserDetails.following.slice(currUserDetails.following.indexOf(toUnFollowUserDetails), 1);
   toUnFollowUserDetails.followers.pop(currUserDetails);
 
   try {

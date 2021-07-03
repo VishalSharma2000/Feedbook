@@ -67,19 +67,21 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const user = undefined;
+  let user = undefined;
   try {
     user = await User.findByCredentials(email, password);
   } catch (error) {
     // TODO: Check for more error handling mechanism
-    return res.status(500).json(failureJSON(error.message));
+    console.log(error);
+    return res.status(500).json({ error });
   }
 
   if (user.emailActivated) {
     return res.status(200).json(failureJSON('Your Email is not Activated'));
   }
 
-  res.send(user);
+  const authToken = await user.generateAuthToken();
+  res.send({ user, authToken });
 });
 
 module.exports = router;
