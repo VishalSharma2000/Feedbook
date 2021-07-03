@@ -1,51 +1,12 @@
-const express = require('express');
-const router = express.Router();
-
-const User = require('../db/models/User');
-const { isUserExist } = require('./../utils/helperFunctions');
-const { authenticationUserToken: verifyUser } = require('../middleware/auth');
-
-const successJSON = (data = undefined) => {
-  return {
-    error: false,
-    errorMessage: '',
-    data: data,
-  }
-};
-
-const failureJSON = (errorMessage) => {
-  if (errorMessage === {} || errorMessage === undefined || errorMessage === null)
-    errorMessage = "Some Error. Please Try Again!"
-  return {
-    error: true,
-    errorMessage: errorMessage,
-    data: null,
-  }
-}
-
-/* Get User Details */
-router.get('/', verifyUser, async (req, res) => {
-  const { userId } = req.query;
-
-  console.log(req.user);
-  /* If User does not exist */
-  if (!userId) {
-    return res.status(400).json(failureJSON('User Id is required'));
-  }
-
-  let user = undefined;
-  try {
-    user = await User.findById({ _id: userId });
-  } catch (error) {
-    return res.status(501).json(failureJSON(error));
-  }
-
-  return res.status(200).json(user);
-});
+const router = require('express').Router();
+const User = require('../../db/models/User');
 
 /* Update User Profile */
 router.patch('/update', async (req, res) => {
   const newUserDetails = req.body;
+  if (newUserDetails._id != req.user._id) {
+    return res.status(401).json('Authentication Failed');
+  }
 
   /* Check if all the key-value pair in newUserDetails are updatable */
   const allowedUpdates = ['_id', 'username', 'name', 'bio', 'password', 'address'];
@@ -85,11 +46,9 @@ router.patch('/update', async (req, res) => {
 
 /* Delete User Profile */
 router.delete('/delete', async (req, res) => {
-  const { userId } = req.query;
-
   /* TODO: Update the following array when the user is deleted */
   try {
-    const user = await User.findByIdAndDelete(userId);
+    const user = await User.findByIdAndDelete(req.user._id);
 
     res.send(user);
   } catch (error) {

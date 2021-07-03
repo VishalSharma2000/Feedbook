@@ -7,7 +7,7 @@ const path = require('path');
 const app = express();
 
 /* Custom Routes */
-const userRoute = require('../src/routes/users');
+const userRoute = require('../src/routes/users/index');
 const authRoute = require('../src/routes/auth');
 
 /* Constant Variables */
