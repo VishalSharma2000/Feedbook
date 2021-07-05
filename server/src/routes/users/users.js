@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const User = require('../../db/models/User');
+const { isUserExist } = require('../../utils/helperFunctions');
 
 const successJSON = (data = undefined) => {
   return {
@@ -43,17 +44,17 @@ router.get('/:id', async (req, res) => {
 
 /* Follow user */
 router.post('/follow', async (req, res) => {
-  const { userId, userToFollow } = req.body;
+  const { userIdToFollow } = req.body;
+  const currUserDetails = req.user;
 
   /* Check if User Exist */
-  const [currUserDetails] = await isUserExist(userId);
-  const [toFollowUserDetails] = await isUserExist(userToFollow);
+  const [toFollowUserDetails] = await isUserExist(userIdToFollow);
 
-  if (!currUserDetails || !toFollowUserDetails) {
+  if (!toFollowUserDetails) {
     return res.status(401).json(failureJSON('User does not exist'));
   }
 
-  /* If userToFollow is already following the user */
+  /* If userIdToFollow is already following the user */
   if (currUserDetails.following.includes(toFollowUserDetails._id)) {
     return res.status(400).json(failureJSON('Already following the user'));
   }
@@ -73,26 +74,27 @@ router.post('/follow', async (req, res) => {
 
 /* UnFollow user */
 router.post('/unfollow', async (req, res) => {
-  const { userId, userToUnFollow } = req.body;
+  const { userIdToUnFollow } = req.body;
+  const currUserDetails = req.user;
 
   /* Check if User Exist */
-  const [currUserDetails] = await isUserExist(userId);
-  const [toUnFollowUserDetails] = await isUserExist(userToUnFollow);
+  const [userDetailsToUnFollow] = await isUserExist(userIdToUnFollow);
 
-  if (!currUserDetails || !toUnFollowUserDetails) {
+  if (!userDetailsToUnFollow) {
     return res.status(401).json(failureJSON('User does not exist'));
   }
 
-  /* If userToFollow is already following the user */
-  if (!currUserDetails.following.includes(toUnFollowUserDetails._id)) {
+  /* If userIdToUnFollow is not following the user */
+  if (!currUserDetails.following.includes(userIdToUnFollow)) {
     return res.status(400).json(failureJSON('You have already unfollowed the user'));
   }
 
-  currUserDetails.following.slice(currUserDetails.following.indexOf(toUnFollowUserDetails), 1);
-  toUnFollowUserDetails.followers.pop(currUserDetails);
+  currUserDetails.following.splice(currUserDetails.following.indexOf(userIdToUnFollow), 1);
+  userDetailsToUnFollow.followers.splice(userDetailsToUnFollow.followers.indexOf(currUserDetails._id), 1);
 
   try {
     await currUserDetails.save();
+    await userDetailsToUnFollow.save();
   } catch (error) {
     return res.status(501).json(failureJSON(error));
   }
