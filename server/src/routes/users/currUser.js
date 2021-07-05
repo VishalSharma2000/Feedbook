@@ -1,7 +1,12 @@
 const router = require('express').Router();
 const User = require('../../db/models/User');
 
-/* Update User Profile */
+/* Get Logged User Details */
+router.patch('/', async (req, res) => {
+  res.json(req.user);
+})
+
+/* Update Logged User Profile */
 router.patch('/update', async (req, res) => {
   const newUserDetails = req.body;
   /* If the user is not currently logged user then don't update the details */
@@ -45,7 +50,7 @@ router.patch('/update', async (req, res) => {
   }
 });
 
-/* Delete User Profile */
+/* Delete Logged User Profile */
 router.delete('/delete', async (req, res) => {
   /* TODO: Update the following array when the user is deleted */
   try {
