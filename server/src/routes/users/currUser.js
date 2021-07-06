@@ -2,7 +2,7 @@ const router = require('express').Router();
 const User = require('../../db/models/User');
 
 /* Get Logged User Details */
-router.patch('/', async (req, res) => {
+router.get('/', async (req, res) => {
   res.json(req.user);
 })
 
