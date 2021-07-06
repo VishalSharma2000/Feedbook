@@ -23,8 +23,8 @@ const failureJSON = (errorMessage) => {
 }
 
 /* Get User Details */
-router.get('/:id', async (req, res) => {
-  const userId = req.params;
+router.get('/:userId', async (req, res) => {
+  const userId = req.params.userId;
 
   /* If User does not exist */
   if (!userId) {
@@ -33,7 +33,7 @@ router.get('/:id', async (req, res) => {
 
   let user = undefined;
   try {
-    user = await User.findById({ _id: userId });
+    user = await User.findById(userId);
   } catch (error) {
     return res.status(501).json(failureJSON(error));
   }
