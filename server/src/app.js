@@ -9,6 +9,7 @@ const app = express();
 /* Custom Routes */
 const userRoute = require('../src/routes/users/index');
 const authRoute = require('../src/routes/auth');
+const postRoute = require('../src/routes/posts/posts');
 
 /* Constant Variables */
 const PORT = process.env.PORT || 5000;
@@ -32,5 +33,6 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute);
+app.use('/api/posts', postRoute);
 
 app.listen(PORT, console.log(`Server is running at http://localhost:${PORT}`));
