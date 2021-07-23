@@ -47,7 +47,29 @@ router.post('/create', async (req, res) => {
 
 /* Update Post */
 router.patch('/update', async (req, res) => {
+  /* Authenticate userId sent inside req.body */
+  const { postId, userId } = req.body;
 
+  if (userId === undefined) {
+    req.body.userId = req.user._id;
+  } else if (userId != req.user._id) {
+    return res.status(401).json({ msg: "You don't have access to update post" });
+  }
+
+  let post;
+  try {
+    /* Update all the existing key-value pair */
+    post = await Post.findOneAndUpdate({ _id: postId, userId }, req.body, { returnOriginal: false });
+  } catch (err) {
+    console.log("Error while fetching post", err);
+    return res.status(500).json({ msg: "Error while updating post" });
+  }
+
+  if (!post) {
+    if (!post) return res.status(404).json({ msg: 'Post does not exist' });
+  }
+
+  res.status(200).json(post);
 });
 
 /* Like / UnLike Post */
