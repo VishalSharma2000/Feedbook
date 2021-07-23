@@ -9,6 +9,7 @@ const makeConnection = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
+      useFindAndModify: false,
     }, console.log('Successfully Connected with Mongodb database'))
   } catch (error) {
     handleConnectionError(error);
