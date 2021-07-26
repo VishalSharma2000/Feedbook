@@ -74,16 +74,43 @@ router.patch('/update', async (req, res) => {
 
 /* Like / UnLike Post */
 router.post('/like', async (req, res) => {
+  const { postId } = req.body;
+  const { _id: userId } = req.user;
+
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (err) {
+    return res.status(500).json({ msg: "Something went wrong." });
+  }
+
+  if (!post) {
+    return res.status(404).json({ msg: "Post does not exist" });
+  }
+
+  if (!post.likes.includes(userId)) {
+    await post.updateOne({ $push: { likes: userId } });
+    return res.status(200).json({ msg: "Post liked successfully " });
+  } else {
+    await post.updateOne({ $pull: { likes: userId } });
+    return res.status(200).json({ msg: "Post unliked successfully" });
+  }
 
 });
 
 /* All Current User Posts */
 router.get('/myPosts', async (req, res) => {
+  try {
+    const posts = await Post.find({ userId: req.user._id });
 
+    res.status(200).json({ posts });
+  } catch (err) {
+    return res.status(500).json({ msg: "Something went wrong" })
+  }
 });
 
 /* Get Post of some user */
-router.get('/allPosts', async (req, res) => {
+router.get('/myfeed', async (req, res) => {
 
 });
 
