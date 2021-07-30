@@ -8,8 +8,8 @@ const Post = require('../../db/models/Post');
 router.use(verifyUser);
 
 /* Get Post Details */
-router.get('/:postId', async (req, res) => {
-  const postId = req.params.postId;
+router.get('/', async (req, res) => {
+  const postId = req.query;
 
   let post = undefined;
   try {
@@ -110,8 +110,21 @@ router.get('/myPosts', async (req, res) => {
 });
 
 /* Get Post of some user */
-router.get('/myfeed', async (req, res) => {
+router.get('/myFeed', async (req, res) => {
+  let posts = [];
 
+  /* User will see post posted by it and those created by those users whom it follow */
+  const userIds = [...req.user.following, req.user._id];
+
+  try {
+    posts = await Post.find({ userId: { $in: userIds } })
+      .populate('userId', '_id name');
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: "Something went wrong" });
+  }
+
+  return res.status(200).json(posts);
 });
 
 module.exports = router;
