@@ -3,11 +3,11 @@ import { Search } from '@material-ui/icons';
 
 import './SearchInput.css';
 
-const SearchInput = () => {
+const SearchInput = (props) => {
   return (
-    <div className="">
-      <Search />
-      <input type="text" placeholder="Search for friends and their photos and videos" />
+    <div className="container" {...props}>
+      <Search className="searchIcon" />
+      <input type="text" className="searchInput" placeholder="Search for friends and their photos and videos" />
     </div>
   );
 };
