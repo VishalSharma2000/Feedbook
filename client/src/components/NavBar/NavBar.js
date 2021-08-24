@@ -16,11 +16,13 @@ const NavBar = () => {
       </div>
 
       <div className="navbar__right">
-        <IconWithNotifCnt icon={<Person />} count={5} />
-        <IconWithNotifCnt icon={<Chat />} count={5} />
-        <IconWithNotifCnt icon={<Notifications />} count={5} />
+        <div className="rightSideIcons">
+          <IconWithNotifCnt icon={<Person style={{ fontSize: '22px', color: 'white' }} />} count={5} />
+          <IconWithNotifCnt icon={<Chat style={{ fontSize: '22px', color: 'white' }} />} count={5} />
+          <IconWithNotifCnt icon={<Notifications style={{ fontSize: '22px', color: 'white' }} />} count={5} />
+        </div>
 
-        <img src="/assets/images/profile_1.jpg" alt="profile_img" width="50" height="50" />
+        <img className="profileImage" src="/assets/images/profile_1.jpg" alt="profile_img" />
       </div>
 
     </div>
